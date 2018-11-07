@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FlappyBird.States;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,12 +10,23 @@ namespace FlappyBird
     /// </summary>
     public class Game1 : Game
     {
+        public static readonly int WIDTH = 480;
+        public static readonly int HEIGHT = 800;
+
+        public static readonly string TITLE = "Flappy Bird";
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        private GameStateManager gameStateManager;
         
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = WIDTH,
+                PreferredBackBufferHeight = HEIGHT
+            };
             Content.RootDirectory = "Content";
         }
 
@@ -27,7 +39,7 @@ namespace FlappyBird
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            gameStateManager = new GameStateManager();
             base.Initialize();
         }
 
@@ -39,6 +51,7 @@ namespace FlappyBird
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            gameStateManager.Push(new MenuState(gameStateManager, Services));
 
             // TODO: use this.Content to load your game content here
         }
@@ -62,6 +75,7 @@ namespace FlappyBird
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            gameStateManager.Update(gameTime.ElapsedGameTime.Milliseconds);
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -74,9 +88,10 @@ namespace FlappyBird
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
+            spriteBatch.Begin();
+            gameStateManager.Draw(spriteBatch);
             // TODO: Add your drawing code here
-
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }
